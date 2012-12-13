@@ -103,7 +103,7 @@ void CSMS_SenderDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_LED_COM16, m_Led16);
     DDX_Control(pDX, IDC_LED_COM17, m_Led17);
     DDX_Control(pDX, IDC_LED_COM18, m_Led18);
-
+    
     //}}AFX_DATA_MAP
 }
 
@@ -158,10 +158,10 @@ BOOL CSMS_SenderDlg::OnInitDialog()
     SetIcon(m_hIcon, FALSE);		// Set small icon
     
     // TODO: Add extra initialization here
-     m_config = new CConfig();
+    m_config = new CConfig();
     Initialize();
     SetTimer(2,1000,NULL);
-   
+    
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -244,57 +244,16 @@ void CSMS_SenderDlg::Finalize()
 
 void CSMS_SenderDlg::setLed(int i,BOOL success)
 {
-    if((i>COMPOOL_SIZE)||(i<0))
+    if((i>COMPOOL_SIZE)||(i<=0))
         return;
-    if(success)
+    CLed *pLed=(CLed *)this->GetDlgItem(IDC_LED_COM1+i-1);//从1开始
+    if(pLed)
     {
-        switch(i)
-        {
-        case 1:{m_Led1.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 2:{m_Led2.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 3:{m_Led3.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 4:{m_Led4.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 5:{m_Led5.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 6:{m_Led6.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 7:{m_Led7.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 8:{m_Led8.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 9:{m_Led9.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 10:{m_Led10.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 11:{m_Led11.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 12:{m_Led12.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 13:{m_Led13.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 14:{m_Led14.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 15:{m_Led15.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 16:{m_Led16.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 17:{m_Led17.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        case 18:{m_Led18.SetLed(CLed::LED_COLOR_GREEN,CLed::LED_ON,CLed::LED_ROUND);break;}
-        }
+        int LedMode = success ? CLed::LED_ON : CLed::LED_OFF;
+        int LedColor = success ? CLed::LED_COLOR_GREEN : CLed::LED_COLOR_RED;
+        pLed->SetLed(LedColor,LedMode,CLed::LED_ROUND);
     }
-    else
-    {
-        switch(i)
-        {
-        case 1:{m_Led1.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 2:{m_Led2.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 3:{m_Led3.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 4:{m_Led4.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 5:{m_Led5.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 6:{m_Led6.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 7:{m_Led7.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 8:{m_Led8.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 9:{m_Led9.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 10:{m_Led10.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 11:{m_Led11.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 12:{m_Led12.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 13:{m_Led13.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 14:{m_Led14.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 15:{m_Led15.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 16:{m_Led16.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 17:{m_Led17.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        case 18:{m_Led18.SetLed(CLed::LED_COLOR_RED,CLed::LED_OFF,CLed::LED_ROUND);break;}
-        }
-    }
-    
+
 }
 
 void CSMS_SenderDlg::InitComPool()
@@ -372,7 +331,7 @@ void CSMS_SenderDlg::AddInfo(CString Info){
     if(max_width <sz.cx) 
         max_width=sz.cx; 
     m_ListBox_Console.SendMessage(LB_SETHORIZONTALEXTENT,max_width,0);
-     Invalidate();
+    Invalidate();
     cs.Unlock();
 }
 
@@ -404,15 +363,14 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                 if(m_timer!=nIDEvent)
                     return;
                 int smsNumber = 0;
-                
-                int idleSenderNumber= getIdleSender();//检查空闲短信机，如果没有则后续短信暂不发送
-                if (idleSenderNumber==0)
-                    return;
-                
                 PSendSMS* smslist = getSendSms(smsNumber);
                 if((smsNumber == 0)||(smslist == NULL))
                     return ;
                 
+                int idleSenderNumber= getIdleSender();//检查空闲短信机，如果没有则后续短信暂不发送
+                if (idleSenderNumber==0)
+                    return;
+                                
                 m_Msg.Format("检测到%d条待发短信",smsNumber);
                 AddInfo(m_Msg);
                 CString Smsc = m_config->SmsC();
@@ -425,9 +383,11 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                 AfxMessageBox(tt);*/
                 for(int i=0;i<smsNumber;i++)
                 {
-
+                    Sleep(100);
                     index = getRandIndex(idleSenderNumber+1);
                     pSender= m_idleSmsSenderList[index].pSmsTraffic;
+					if(!pSender)
+						continue;
                     SM_PARAM SmParam;
                     memset(&SmParam, 0, sizeof(SM_PARAM));
                     
@@ -443,13 +403,16 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                     // 填充短消息结构
                     strcpy(SmParam.SCA,Smsc);
                     strcpy(SmParam.TPA, teleCode);
+                    if(smslist[i]->Msg.GetLength()>160)
+                        smslist[i]->Msg = smslist[i]->Msg.Left(160);//超过长度限制的进行截取
                     strcpy(SmParam.TP_UD, smslist[i]->Msg);
+                    
+                    
                     CString smsID;
                     SmParam.index = smslist[i]->ID;
                     SmParam.TP_PID = 0;
                     SmParam.TP_DCS = GSM_UCS2;
-                    pSender->PutSendMessage(&SmParam);
-                    index++;  
+                    pSender->PutSendMessage(&SmParam); 
                     
                 }
                 for(int j=0;j<smsNumber;j++)
@@ -459,24 +422,12 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                 break;
             }
         case 2:{
-            m_Led1.Ping(200);
-            m_Led2.Ping(200);
-            m_Led3.Ping(200);
-            m_Led4.Ping(200);
-            m_Led5.Ping(200);
-            m_Led6.Ping(200);
-            m_Led7.Ping(200);
-            m_Led8.Ping(200);
-            m_Led9.Ping(200);
-            m_Led10.Ping(200);
-            m_Led11.Ping(200);
-            m_Led12.Ping(200);
-            m_Led13.Ping(200);
-            m_Led14.Ping(200);
-            m_Led15.Ping(200);
-            m_Led16.Ping(200);
-            m_Led17.Ping(200);
-            m_Led18.Ping(200);
+            for(int i=0;i<COMPOOL_SIZE;i++)
+            {
+                CLed *pLed=(CLed *)this->GetDlgItem(IDC_LED_COM1+i);
+                if(pLed)
+                    pLed->Ping(200);
+            }
             break;
                }
         }
@@ -520,7 +471,7 @@ int CSMS_SenderDlg::getRandIndex(int MaxIndex)
 {
     srand( (unsigned)time( NULL ) );
     return (int)(rand()%MaxIndex); 
-
+    
 }
 
 //消息方法

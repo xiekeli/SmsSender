@@ -22,15 +22,15 @@
 #define IDC_LED_COM7                    1014
 #define IDC_LED_COM8                    1015
 #define IDC_LED_COM9                    1016
-#define IDC_LED_COM10                   1018
-#define IDC_LED_COM11                   1020
-#define IDC_LED_COM12                   1021
-#define IDC_LED_COM13                   1022
-#define IDC_LED_COM14                   1023
-#define IDC_LED_COM15                   1024
-#define IDC_LED_COM16                   1025
-#define IDC_LED_COM17                   1026
-#define IDC_LED_COM18                   1027
+#define IDC_LED_COM10                   1017
+#define IDC_LED_COM11                   1018
+#define IDC_LED_COM12                   1019
+#define IDC_LED_COM13                   1020
+#define IDC_LED_COM14                   1021
+#define IDC_LED_COM15                   1022
+#define IDC_LED_COM16                   1023
+#define IDC_LED_COM17                   1024
+#define IDC_LED_COM18                   1025
 
 // Next default values for new objects
 // 

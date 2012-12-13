@@ -41,7 +41,10 @@ PSendSMS* getSendSms(int &smsNumber)
     cs.Lock();
     int index = 0;
     if (!OCI_Initialize(err_handler, NULL, OCI_ENV_DEFAULT | OCI_ENV_CONTEXT))
+	{
+		cs.Unlock();
         return NULL;
+	}
     OCI_Initialized = true;
     cn  = OCI_ConnectionCreate(DB, USERNAME, PASSWORD, OCI_SESSION_DEFAULT);
     if (cn == NULL)
@@ -49,6 +52,7 @@ PSendSMS* getSendSms(int &smsNumber)
         OCI_Error *err = OCI_GetLastError();
         printf("errcode %d, errmsg %s", OCI_ErrorGetOCICode(err), 
                                         OCI_ErrorGetString(err));
+		cs.Unlock();
         return NULL;
     }
 

@@ -17,7 +17,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 HWND  CSmsTraffic::m_Handle = 0;
 const int IDLE_SMS_NUMBER = 5;//空闲短信机阀值，待发短信数小于该值，为空闲
-const int SEND_TIMES_FAILED = 2; // 连续发送失败次数（用于判断发送失败）
+const int SEND_TIMES_FAILED = 5; // 连续发送失败次数（用于判断发送失败）
 const int SEND_SMS_FAILED = 2;// 连续发送失败短信数（用于判断SIM停机）
 
 CSmsTraffic::CSmsTraffic()
@@ -142,18 +142,32 @@ int CSmsTraffic::getUnSends()
 
 Status CSmsTraffic::getStatus()
 {
+	Status result = Idle;
+	EnterCriticalSection(&m_csSend);
     if(m_sendFailedSms>=SEND_SMS_FAILED)
-        return Halt;
+	{
+        result =  Halt;
+		goto exit;
+	}
     else
     {
         int unSendSms = m_nSendIn - m_nSendOut+1;
         if(unSendSms >= IDLE_SMS_NUMBER)
-            return Busy;
+		{
+            result =  Busy;
+			goto exit;
+		}
         else
-            return Idle;
+		{
+            result =  Idle;
+			goto exit;
+		}
     }
     
-    
+exit:{
+		LeaveCriticalSection(&m_csSend);
+		return result;
+	}    
 }
 
 void CSmsTraffic::set_Handle(HWND handle)
@@ -216,7 +230,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 		switch(nState)
 		{
 			case stBeginRest:
-                info(_TEXT("短信机："),pPort,_TEXT(" 准备就绪..."));
+                //info(_TEXT("短信机："),pPort,_TEXT(" 准备就绪..."));
 				tmOrg = CTime::GetCurrentTime();
 				nState = stContinueRest;
 				break;
@@ -227,16 +241,17 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 				if (p->GetSendMessage(&param[0]))
 				{
 					nState = stSendMessageRequest;	// 有待发短消息，就不休息了
-                    info(_TEXT("短信机："),pPort,_TEXT(" 获取短信成功..."));
+                    info(_TEXT("短信机："),pPort,_TEXT(" 检测到有待发短信..."));
 				}
-				else if (tmNow - tmOrg >= 5)		// 待发短消息队列空，休息5秒
+				else if (tmNow - tmOrg >= 5)		// 待发短消息队列空，休息5毫秒
 				{
 					nState = stReadMessageRequest;	// 转到读取短消息状态
 				}
 				break;
-
+                
 			case stSendMessageRequest:
 				gsmSendMessage(pPort,&param[0]);
+				info(_TEXT("短信机："),pPort,_TEXT(" 向号码："),param[0].TPA,_TEXT(" 发送消息："),param[0].TP_UD,"...");
 				memset(&buff, 0, sizeof(buff));
 				tmOrg = CTime::GetCurrentTime();
 				nState = stSendMessageResponse;
@@ -244,7 +259,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 				break;
 
 			case stSendMessageResponse:
-				Sleep(100);
+				Sleep(3000);
 				tmNow = CTime::GetCurrentTime();
 				switch (gsmGetResponse(pPort,&buff))
 				{
@@ -259,7 +274,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 						nState = stSendMessageWaitIdle;
                         if(p->m_sendTimes >= SEND_TIMES_FAILED)
                         {
-                            setStatus(param[0].index,ssSendFail,true);
+                            setStatus(param[0].index,ssWaitToSend,true);
                             info(_TEXT("短信机："),pPort,_TEXT(" 向号码："),param[0].TPA,_TEXT(" 发送消息："),param[0].TP_UD,"失败！");
                             p->m_sendTimes = 0;
                             p->m_sendFailedSms++;
@@ -267,10 +282,22 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
                         }
 						break;
 					default:
-						if (tmNow - tmOrg >= 10)		// 10秒超时
+						nState = stSendMessageWaitIdle;
+						if(p->m_sendTimes >= SEND_TIMES_FAILED)
 						{
-							nState = stSendMessageWaitIdle;
+							info(_TEXT("短信机："),pPort,_TEXT(" 向号码："),param[0].TPA,_TEXT(" 发送消息："),param[0].TP_UD,"失败！");
+							
+							p->m_sendTimes = 0;
+							p->m_sendFailedSms++;
+							if(p->m_sendFailedSms >= SEND_SMS_FAILED)
+							{
+								info(_TEXT("短信机："),pPort,"连续发送失败次数超标,疑似欠费,请确认！");
+								setStatus(param[0].index,ssWaitToSend,true);
+								
+							}
+							nState = stBeginRest;
 						}
+
 				}
 				break;
 
@@ -378,6 +405,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 	// 置该线程结束标志
 	SetEvent(p->m_hThreadKilledEvent);
     free(pPort);
+    pPort = NULL;
 	return 9999;
 }
 
