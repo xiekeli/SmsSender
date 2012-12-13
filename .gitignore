@@ -11,3 +11,10 @@
 *.lai
 *.la
 *.a
+/Debug
+/Release
+/SMS_Sender.exe
+/SMS_Sender.dsw
+/SMS_Sender.aps
+/SMS_Sender.clw
+/SMS_Sender.dsp
