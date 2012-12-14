@@ -366,13 +366,15 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                 PSendSMS* smslist = getSendSms(smsNumber);
                 if((smsNumber == 0)||(smslist == NULL))
                     return ;
+
+                m_Msg.Format("检测到%d条待发短信",smsNumber);
+                AddInfo(m_Msg);
                 
                 int idleSenderNumber= getIdleSender();//检查空闲短信机，如果没有则后续短信暂不发送
                 if (idleSenderNumber==0)
                     return;
                                 
-                m_Msg.Format("检测到%d条待发短信",smsNumber);
-                AddInfo(m_Msg);
+                
                 CString Smsc = m_config->SmsC();
                 CString teleCode;
                 

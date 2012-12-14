@@ -18,7 +18,8 @@ static char THIS_FILE[]=__FILE__;
 HWND  CSmsTraffic::m_Handle = 0;
 const int IDLE_SMS_NUMBER = 5;//空闲短信机阀值，待发短信数小于该值，为空闲
 const int SEND_TIMES_FAILED = 5; // 连续发送失败次数（用于判断发送失败）
-const int SEND_SMS_FAILED = 2;// 连续发送失败短信数（用于判断SIM停机）
+const int SEND_SMS_FAILED = 3;// 连续发送失败短信数（用于判断SIM停机）
+const int READ_TIMES_FAILED = 5;//连续接收短信失败次数（用于判断SIM停机）
 
 CSmsTraffic::CSmsTraffic()
 {
@@ -27,6 +28,7 @@ CSmsTraffic::CSmsTraffic()
 	m_nRecvIn = 0;
 	m_nRecvOut = 0;
     m_sendTimes = 0;
+    m_readFailedTimes = 0;
     m_sendFailedSms = 0;
 
 	m_hKillThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -144,7 +146,7 @@ Status CSmsTraffic::getStatus()
 {
 	Status result = Idle;
 	EnterCriticalSection(&m_csSend);
-    if(m_sendFailedSms>=SEND_SMS_FAILED)
+    if((m_sendFailedSms>=SEND_SMS_FAILED)||(m_readFailedTimes >= READ_TIMES_FAILED))
 	{
         result =  Halt;
 		goto exit;
@@ -259,7 +261,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 				break;
 
 			case stSendMessageResponse:
-				Sleep(3000);
+				Sleep(10000);
 				tmNow = CTime::GetCurrentTime();
 				switch (gsmGetResponse(pPort,&buff))
 				{
@@ -286,13 +288,13 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 						if(p->m_sendTimes >= SEND_TIMES_FAILED)
 						{
 							info(_TEXT("短信机："),pPort,_TEXT(" 向号码："),param[0].TPA,_TEXT(" 发送消息："),param[0].TP_UD,"失败！");
-							
+							setStatus(param[0].index,ssWaitToSend,true);
 							p->m_sendTimes = 0;
 							p->m_sendFailedSms++;
 							if(p->m_sendFailedSms >= SEND_SMS_FAILED)
 							{
 								info(_TEXT("短信机："),pPort,"连续发送失败次数超标,疑似欠费,请确认！");
-								setStatus(param[0].index,ssWaitToSend,true);
+								
 								
 							}
 							nState = stBeginRest;
@@ -319,7 +321,6 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 				switch (gsmGetResponse(pPort,&buff))
 				{
 					case GSM_OK: 
-//						TRACE("  GSM_OK %d\n", tmNow - tmOrg);
 						nMsg = gsmParseMessageList(param, &buff);
 						if (nMsg > 0)
 						{
@@ -336,18 +337,20 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
 						{
 							nState = stBeginRest;
 						}
+                        p->m_readFailedTimes = 0;
 						break;
 					case GSM_ERR:
-//						TRACE("  GSM_ERR %d\n", tmNow - tmOrg);
-                        info(_TEXT("短信机："),pPort,_TEXT(" 接收错误"));
+                        p->m_readFailedTimes++;
+                        if(p->m_readFailedTimes >= READ_TIMES_FAILED)
+                        {
+                            //info(_TEXT("短信机："),pPort,"连续收取短信失败次数超标,疑似欠费,请确认！");
+                            
+					    }
 						nState = stBeginRest;
 						break;
 					default:
-//						TRACE("  GSM_WAIT %d\n", tmNow - tmOrg);
 						if (tmNow - tmOrg >= 15)		// 15秒超时
 						{
-//							TRACE("  Timeout!\n");
-                            //info(_TEXT("短信机："),pPort,_TEXT(" 接收超时"));
 							nState = stBeginRest;
 						}
 				}

@@ -56,6 +56,7 @@ public:
 	static UINT SmThread(LPVOID lpParam);	// 短消息收发处理子线程
 
     int m_sendTimes;//短信发送次数,用于判断停机状态
+    int m_readFailedTimes;//收短信失败次数
     int m_sendFailedSms;//连续发送短信失败条数
 public:
     char* Comport();

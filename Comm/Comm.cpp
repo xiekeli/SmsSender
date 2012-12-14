@@ -74,6 +74,7 @@ BOOL OpenComm(const char* pPort, int nBaudRate, int nParity, int nByteSize, int 
 		1,					// 写操作时每字符的时间: 1 ms (n个字符总共为n ms)
 		100};				// 基本的(额外的)写超时时间: 100 ms
 
+
 	HANDLE hComm = CreateFile(pPort,	// 串口名称或设备路径
 			GENERIC_READ | GENERIC_WRITE,	// 读写方式
 			0,				// 共享方式：独占

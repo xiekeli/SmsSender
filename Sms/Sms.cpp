@@ -561,7 +561,7 @@ int gsmGetResponse(const char* pPort,SM_BUFF* pBuff)
 	if ((nLength > 0) && (pBuff->len >= 4))
 	{
 		if (strncmp(&pBuff->data[pBuff->len - 4], "OK\r\n", 4) == 0)  nState = GSM_OK;
-		else if (strstr(pBuff->data, "+CMS ERROR") != NULL) nState = GSM_ERR;
+		else if (strstr(pBuff->data, "ERROR") != NULL) nState = GSM_ERR;
 	}
 
 	return nState;
