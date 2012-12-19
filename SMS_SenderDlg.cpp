@@ -372,7 +372,11 @@ void CSMS_SenderDlg::OnTimer(UINT nIDEvent)
                 
                 int idleSenderNumber= getIdleSender();//检查空闲短信机，如果没有则后续短信暂不发送
                 if (idleSenderNumber==0)
+                {
+                    m_Msg.Format("检测到%d个空闲短信机，短信无法发送",idleSenderNumber);
+                    AddInfo(m_Msg);
                     return;
+                }
                                 
                 
                 CString Smsc = m_config->SmsC();

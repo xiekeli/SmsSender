@@ -19,7 +19,7 @@ HWND  CSmsTraffic::m_Handle = 0;
 const int IDLE_SMS_NUMBER = 5;//空闲短信机阀值，待发短信数小于该值，为空闲
 const int SEND_TIMES_FAILED = 5; // 连续发送失败次数（用于判断发送失败）
 const int SEND_SMS_FAILED = 3;// 连续发送失败短信数（用于判断SIM停机）
-const int READ_TIMES_FAILED = 5;//连续接收短信失败次数（用于判断SIM停机）
+const int READ_TIMES_FAILED = 15;//连续接收短信失败次数（用于判断SIM停机）
 
 CSmsTraffic::CSmsTraffic()
 {
@@ -343,7 +343,7 @@ UINT CSmsTraffic::SmThread(LPVOID lParam)
                         p->m_readFailedTimes++;
                         if(p->m_readFailedTimes >= READ_TIMES_FAILED)
                         {
-                            //info(_TEXT("短信机："),pPort,"连续收取短信失败次数超标,疑似欠费,请确认！");
+                            info(_TEXT("短信机："),pPort,"连续收取短信失败次数超标,疑似欠费,请确认！");
                             
 					    }
 						nState = stBeginRest;
