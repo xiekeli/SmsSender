@@ -20,7 +20,7 @@ typedef struct {
 	char TP_DCS;			// 用户信息编码方式(TP-DCS)
 	char TP_SCTS[16];		// 服务时间戳字符串(TP_SCTS), 接收时用到
 	char TP_UD[160];		// 原始用户信息(编码前或解码后的TP-UD)
-	short index;			// 短消息序号，在读取时用到
+	long index;			// 短消息序号，在读取时用到
 } SM_PARAM;
 
 // 读取应答的缓冲区
