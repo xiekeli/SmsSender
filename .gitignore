@@ -18,3 +18,7 @@
 /SMS_Sender.aps
 /SMS_Sender.clw
 /SMS_Sender.dsp
+/*.plg
+/*.ilk
+/*.ncb
+/*.opt
